@@ -1,0 +1,24 @@
+# To install VS Code and main settings:
+---
+
+- name: install VS Code repo (yum)
+  become: yes
+  yum_repository:
+    name: code
+    description: Visual Studio Code repo
+    file: vscode
+    baseurl: https://packages.microsoft.com/yumrepos/vscode
+    gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+    gpgcheck: yes
+
+- name: install VS Code (yum)
+  become: yes
+  yum:
+    name: code
+    state: present
+
+- name: Install code extensions
+  command: code --install-extension "{{ item }}"
+  # Didn't get it to work as "command: code --install-extension "{{ vs_code_plugins }}""
+  become: no
+  with_items: "{{ vs_code_plugins }}"

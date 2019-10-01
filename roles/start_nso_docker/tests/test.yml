@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - start_nso_docker
+  #     variable_name: variable
+  #     become: yes
+  # tasks:
+  # - name: tasks

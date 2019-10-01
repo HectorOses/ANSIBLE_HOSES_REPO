@@ -1,0 +1,14 @@
+---
+# tasks file for start_nso_docker
+
+# ADD check if SELINUX is disabled
+
+# ADD disable SELINUX and ask to ce_reboot
+
+- name: create file structure
+  file:
+    path: "{{project_name}}"
+    state: directory 
+    mode: 01777
+    # chdir: "{{project_dir}}"
+  # file: path=nso_projects state=directory mode=01777

@@ -1,0 +1,4 @@
+---
+# vars file for start_nso_docker
+project_dir: "/home/admin"
+project_name: test_project

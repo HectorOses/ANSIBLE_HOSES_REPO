@@ -1,0 +1,169 @@
+---
+- name: Installation of basic CentOS 7 utilities for hoses
+  hosts: localhost
+  vars:
+    ansible_user: "admin"  # ssh login user
+    # ansible_become: yes  # use sudo (if written overwrites Task become statement)
+    ansible_become_method:  sudo 
+
+    # Whether to run yum update and install yum-utils. Expected Yes|No
+    #     This is because there is some errors present I could not fix
+    yum_update: "No"
+    new_install: "No"
+
+    docker_centos_users: "admin"
+
+  # become_user: root
+  become: yes
+  tasks:
+  
+    ### Commented temporarily as fails then already installed
+
+    - name: update all packages
+      yum:
+        name: "*"
+        state: latest
+        ### If you need to avoid update some packages
+        # exclude: xxx*
+      when: yum_update == "Yes"
+
+    - name: install yum utils
+      yum:
+        name: 
+        - yum-utils
+        - "@Development tools"
+        state: latest
+      when: new_install == "Yes"
+
+    - name: install epel-release
+      yum:
+        name: epel-release
+        state: latest
+
+    - name: install python3 python-pip
+      yum:
+        name: 
+        - python-pip
+        - python34
+        state: latest
+  
+    - name: Upgrade pip
+      pip:
+        name: pip
+        extra_args: --upgrade
+    
+    - name: install base apps
+      yum:
+        name:
+        ### Remove any packages not required
+        - vim
+        - git
+        - ansible
+        state: latest
+
+    # tasks for ansible-disable-selinux
+    - name: Install libselinux as prerequisite for SELinux Ansible module
+      yum:
+        name: 
+        - libselinux-python
+        - libsemanage-python
+        state: latest
+  
+    # Disable SELINUX (requires reboot)
+    - name: Disable SELinux at next reboot
+      selinux:
+        state: disabled
+    
+    ### Section for docker
+    # Based on: https://gist.github.com/yonglai/d4617d6914d5f4eb22e4e5a15c0e9a03
+    
+    # Required for docker: sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+    - name: Install docker requirements for repository
+      yum:
+        name: 
+        - yum-utils
+        - device-mapper-persistent-data
+        - lvm2
+        state: latest
+
+    - name: Enable CENTOS repos(CentOS only)
+      ini_file:
+        dest: /etc/yum.repos.d/CentOS-Base.repo
+        section: "{{ item }}"
+        option: enabled
+        value: 1
+      with_items:
+        - base
+        - updates
+        - extras    # Required for docker-ce
+        - centosplus
+      when:
+        - (ansible_distribution == "CentOS")
+        -   ansible_distribution_major_version == "7"
+
+    - name: Add Docker repo
+      get_url:
+        url: https://download.docker.com/linux/centos/docker-ce.repo
+        dest: /etc/yum.repos.d/docer-ce.repo
+      become: yes
+
+    - name: Enable Docker Edge repo
+      ini_file:
+        dest: /etc/yum.repos.d/docer-ce.repo
+        section: 'docker-ce-edge'
+        option: enabled
+        value: 0
+      become: yes
+      
+    - name: Enable Docker Test repo
+      ini_file:
+        dest: /etc/yum.repos.d/docer-ce.repo
+        section: 'docker-ce-test'
+        option: enabled
+        value: 0
+      become: yes
+
+    - name: install docker and start the daemon
+      yum: name=docker-ce state=latest
+
+    # # OLD DOCKER, NOT DOCKER-CE
+    # - name: install docker and start the daemon
+    #   yum: name=docker state=latest
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      become: yes
+
+    - name: create docker group
+      group: name=docker state=present
+
+
+    - name: add users to the docker group
+      user:
+        name: "{{docker_centos_users}}"
+        groups: docker
+        append: yes
+
+    - name: install VS Code repo (yum)
+      become: yes
+      yum_repository:
+        name: code
+        description: Visual Studio Code repo
+        file: vscode
+        baseurl: https://packages.microsoft.com/yumrepos/vscode
+        gpgkey: https://packages.microsoft.com/keys/microsoft.asc
+        gpgcheck: yes
+
+    - name: install VS Code (yum)
+      become: yes
+      yum:
+        name: code
+        state: present
+    
+    - name: Install code extensions
+      command: code --install-extension jebbs.plantuml ms-python.python
+      become: no
+

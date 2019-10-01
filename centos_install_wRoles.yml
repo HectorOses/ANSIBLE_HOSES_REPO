@@ -1,0 +1,5 @@
+---
+- name: Installation of basic CentOS 7 utilities for hoses
+  hosts: localhost
+  roles:
+    - role: centos_install

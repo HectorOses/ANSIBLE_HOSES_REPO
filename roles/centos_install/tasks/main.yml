@@ -1,0 +1,64 @@
+---
+# tasks file for centos_install
+
+- name: update all packages
+  yum:
+    name: "*"
+    state: latest
+    ### If you need to avoid update some packages
+    # exclude: xxx*
+  when: yum_update == "Yes"
+
+- name: install yum utils
+  yum:
+    name:
+    - yum-utils
+    - "@Development tools"
+    state: latest
+  # become_user: root
+  when: new_install == "Yes"
+
+- name: install epel-release
+  yum:
+    name: epel-release
+    state: latest
+
+- name: install python3 python-pip
+  yum:
+    name: 
+    - python-pip
+    - python34
+    state: latest
+
+- name: Upgrade pip
+  pip:
+    name: pip
+    extra_args: --upgrade
+
+- name: install base apps
+  yum:
+    name: "{{ yum_apps }}"
+    ### Remove any packages not required
+    # - vim
+    # - git
+    # - ansible
+    state: latest
+
+# tasks for ansible-disable-selinux
+- name: Install libselinux as prerequisite for SELinux Ansible module
+  yum:
+    name: 
+    - libselinux-python
+    - libsemanage-python
+    state: latest
+
+# Disable SELINUX (requires reboot)
+- name: Disable SELinux at next reboot
+  selinux:
+    state: disabled
+
+# Install and enable docker
+- include: docker_install_centos.yml
+
+# VS Code Related tasks
+- include: vs_code_install_centos.yml

@@ -1,0 +1,13 @@
+# handlers file for centos_install
+# file: roles/centos_install/handlers/main.yml
+---
+# For example,
+#
+# - name: restart ntpd
+#   service: name=ntpd state=restarted
+
+- name: start docker service
+  service: name=docker state=started
+
+- name: enable docker service
+  service: name=docker enabled=yes

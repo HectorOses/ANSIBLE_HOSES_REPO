@@ -1,0 +1,23 @@
+---
+# vars file for centos_install
+
+ansible_user: "admin"  # ssh login user
+# ansible_become: yes  # use sudo (if written overwrites Task become statement)
+ansible_become_method:  sudo 
+
+# Whether to run yum update and install yum-utils. Expected Yes|No
+#     This is because there is some errors present I could not fix
+yum_update: "No"
+new_install: "No"
+
+# Main software to install with yum task "install base apps".
+yum_apps:
+  - vim
+  - git
+  - ansible
+
+docker_centos_users: "admin"
+
+vs_code_plugins:
+  - jebbs.plantuml
+  - ms-python.python
