@@ -7,6 +7,7 @@
     state: latest
     ### If you need to avoid update some packages
     # exclude: xxx*
+  become: Yes
   when: yum_update == "Yes"
 
 - name: install yum utils
@@ -15,25 +16,39 @@
     - yum-utils
     - "@Development tools"
     state: latest
-  # become_user: root
+  become: Yes
   when: new_install == "Yes"
 
 - name: install epel-release
   yum:
     name: epel-release
     state: latest
+  become: Yes
+
+- name: add repository for python36u
+  yum:
+    name: https://centos7.iuscommunity.org/ius-release.rpm
+    state: installed
+  become: Yes
 
 - name: install python3 python-pip
   yum:
     name: 
+    # - ius-release.rpm
+    - python36u
+    - python36u-libs
+    - python36u-devel
+    - python36u-pip
     - python-pip
-    - python34
+    # - python34
     state: latest
+  become: Yes
 
 - name: Upgrade pip
   pip:
     name: pip
     extra_args: --upgrade
+  become: Yes
 
 - name: install base apps
   yum:
@@ -43,6 +58,7 @@
     # - git
     # - ansible
     state: latest
+  become: Yes
 
 # tasks for ansible-disable-selinux
 - name: Install libselinux as prerequisite for SELinux Ansible module
@@ -51,11 +67,13 @@
     - libselinux-python
     - libsemanage-python
     state: latest
+  become: Yes
 
 # Disable SELINUX (requires reboot)
 - name: Disable SELinux at next reboot
   selinux:
     state: disabled
+  become: Yes
 
 # Install and enable docker
 - include: docker_install_centos.yml
