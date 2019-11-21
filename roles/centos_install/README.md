@@ -23,11 +23,11 @@ sudo yum install -y ansible
 ```
 
 NOTE: if you get "Another app is currently holding the yum lock..."  
-	1. Ctrl+C install  
-	2. `ps -ef | grep yum` to find who is locking it, most probably automatic updates  
-	3. Most probably this is the Software Update application waiting to update software.  
-		3.1 you can kill the PID `sudo kill <PID>` as the ansible-playbook will update all , but BETTER:  
-		3.2 Applications > System Tools > Software Update > Button:Install  
+  1. Ctrl+C install  
+  2. `ps -ef | grep yum` to find who is locking it, most probably automatic updates  
+  3. Most probably this is the Software Update application waiting to update software.  
+    3.1 you can kill the PID `sudo kill <PID>` as the ansible-playbook will update all , but BETTER:  
+    3.2 Applications > System Tools > Software Update > Button:Install  
 
 Role Variables
 --------------

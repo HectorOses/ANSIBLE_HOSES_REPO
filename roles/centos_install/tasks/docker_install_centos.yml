@@ -5,10 +5,11 @@
 - name: Install docker requirements for repository
   yum:
     name: 
-    - yum-utils
+    # - yum-utils # Installed before in role
     - device-mapper-persistent-data
     - lvm2
     state: latest
+  become: yes
 
 - name: Enable CENTOS repos(CentOS only)
   ini_file:
@@ -49,6 +50,7 @@
 
 - name: install docker and start the daemon
   yum: name=docker-ce state=latest
+  become: yes
 
 - name: Start Docker service
   service:
@@ -65,3 +67,27 @@
     name: "{{docker_centos_users}}"
     groups: docker
     append: yes
+
+# Install docker compose if selected in vars
+
+- name: upgrade packages requirement for docker compose
+  pip:
+    name: 
+    - cffi 
+    - six
+    extra_args: --upgrade
+  become: Yes
+
+- name: install docker compose
+  pip:
+    name: docker-compose
+    version: "{{ docker_compose_version }}"
+  when: install_docker_compose == "Yes"
+  become: Yes
+
+- name: upgrade python packages for docker compose
+  yum:
+    name: "python*"
+    state: latest
+  become: Yes
+  when: install_docker_compose == "Yes"

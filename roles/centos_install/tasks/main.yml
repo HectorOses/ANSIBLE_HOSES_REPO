@@ -17,7 +17,6 @@
     - "@Development tools"
     state: latest
   become: Yes
-  when: new_install == "Yes"
 
 - name: install epel-release
   yum:
@@ -40,6 +39,7 @@
     - python36u-devel
     - python36u-pip
     - python-pip
+    - python-devel
     # - python34
     state: latest
   become: Yes

@@ -8,7 +8,7 @@ ansible_become_method:  sudo
 # Whether to run yum update and install yum-utils. Expected Yes|No
 #     This is because there is some errors present I could not fix
 yum_update: "No"
-new_install: "No"
+# new_install: "No"
 
 # Main software to install with yum task "install base apps".
 yum_apps:
@@ -17,6 +17,9 @@ yum_apps:
   - ansible
 
 docker_centos_users: "admin"
+install_docker_compose: "Yes"
+# if version = "" it will use the latest
+docker_compose_version: ""
 
 vs_code_plugins:
   - jebbs.plantuml
